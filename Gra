@@ -1,0 +1,141 @@
+import java.awt.*;
+import java.awt.event.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import javax.swing.*;
+
+public class Gra extends JPanel {
+    private List<Point> raindrops = new ArrayList<>();
+    private List<Cloud> clouds = new ArrayList<>();
+    private CardLayout cardLayout;
+
+    public Gra(CardLayout cardLayout) {
+        this.cardLayout = cardLayout;
+
+        // Dodanie kilku chmur
+        clouds.add(new Cloud(100, 50));
+        clouds.add(new Cloud(300, 100));
+        clouds.add(new Cloud(500, 75));
+        clouds.add(new Cloud(1000, 50));
+        for (int i = 0; i < 10; ++i) {
+            this.raindrops.add(new Point((int) (Math.random() * 1024), (int) (Math.random() * 200.0)));
+        }
+
+        JButton bmenu = new JButton("Menu");
+        bmenu.setBounds(400, 600, 500, 200);
+        bmenu.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Container parentContainer = getParentContainer(Gra.this);
+                if (parentContainer != null && parentContainer instanceof JPanel) {
+                    CardLayout cardLayout = (CardLayout) parentContainer.getLayout();
+                    cardLayout.show(parentContainer, "Menu");
+                }
+
+            }
+
+            private Container getParentContainer(Component component) {
+                Container parent = component.getParent();
+                while (parent != null && !(parent instanceof JPanel)) {
+                    parent = parent.getParent();
+                }
+                return parent;
+            }
+        });
+        add(bmenu);
+
+        // Dodanie obsługi zdarzeń myszy
+
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                Iterator<Point> iterator = raindrops.iterator();
+                while (iterator.hasNext()) {
+                    Point raindrop = iterator.next();
+                    Rectangle bounds = new Rectangle(raindrop.x, raindrop.y, 30, 45);
+                    if (bounds.contains(e.getPoint())) {
+                        iterator.remove(); // Usunięcie kropelki po kliknięciu
+                    }
+                }
+                repaint();
+            }
+        });
+
+        Timer timer = new Timer(100, (e) -> {
+            Iterator var2 = this.raindrops.iterator();
+
+            while(var2.hasNext()) {
+                Iterator<Point> iterator = this.raindrops.iterator();
+                Point raindrop = (Point)var2.next();
+                raindrop.translate(0, 2);
+                if (raindrop.y > getHeight())
+                {
+                    iterator.remove(); // Usunięcie kropelki, gdy opuści obszar
+
+                }
+            }
+
+            this.repaint();
+        });
+        timer.start();
+
+
+
+
+        // Przesuwanie chmur
+        for (Cloud cloud : clouds) {
+            cloud.move();
+        }
+
+        this.repaint();
+
+        timer.start();
+    }
+
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+
+        g.setColor(Color.CYAN);
+        Iterator<Point> iterator = this.raindrops.iterator();
+        while (iterator.hasNext()) {
+            Point raindrop = iterator.next();
+            g.fillOval(raindrop.x, raindrop.y, 30, 75);
+        }
+
+        // Rysowanie chmur
+        g.setColor(Color.BLUE);
+        for (Cloud cloud : clouds) {
+            g.fillOval(cloud.getX(), cloud.getY(), 80, 40);
+            g.fillOval(cloud.getX() + 20, cloud.getY() - 20, 80, 40);
+            g.fillOval(cloud.getX() + 40, cloud.getY(), 80, 40);
+        }
+    }
+
+    // Klasa reprezentująca chmurę
+    private class Cloud {
+        private int x;
+        private int y;
+
+        public Cloud(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
+
+        public int getX() {
+            return x;
+        }
+
+        public int getY() {
+            return y;
+        }
+
+        public void move() {
+            // Przesunięcie chmury w lewo
+            x -= 1;
+            if (x + 80 < 0) {
+                x = getWidth(); // Przenieś chmurę na prawo po opuszczeniu obszaru rysowania
+            }
+        }
+    }
+}
