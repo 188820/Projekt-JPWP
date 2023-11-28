@@ -10,9 +10,11 @@ public class Gra extends JPanel {
     private List<Cloud> clouds = new ArrayList<>();
     private CardLayout cardLayout;
 
+    int x=1;
+
     public Gra(CardLayout cardLayout) {
         this.cardLayout = cardLayout;
-
+        //setLayout(new BorderLayout());
         // Dodanie kilku chmur
         clouds.add(new Cloud(100, 50));
         clouds.add(new Cloud(300, 100));
@@ -23,7 +25,7 @@ public class Gra extends JPanel {
         }
 
         JButton bmenu = new JButton("Menu");
-        bmenu.setBounds(400, 600, 500, 200);
+        bmenu.setPreferredSize(new Dimension(100, 50));
         bmenu.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -62,17 +64,20 @@ public class Gra extends JPanel {
             }
         });
 
-        Timer timer = new Timer(100, (e) -> {
-            Iterator var2 = this.raindrops.iterator();
+        Timer timer = new Timer(25, (e) -> {
+          //  Iterator var2 = this.raindrops.iterator();
+            Iterator<Point> iterator = this.raindrops.iterator();
 
-            while(var2.hasNext()) {
-                Iterator<Point> iterator = this.raindrops.iterator();
-                Point raindrop = (Point)var2.next();
+            while(iterator.hasNext()) {
+               // Iterator<Point> iterator = this.raindrops.iterator();
+                Point raindrop = iterator.next();
                 raindrop.translate(0, 2);
-                if (raindrop.y > getHeight())
-                {
-                    iterator.remove(); // Usunięcie kropelki, gdy opuści obszar
 
+                if (raindrop.y > getHeight() && x==1 )
+                {
+                    iterator.remove();
+                    System.out.println("Spadly");
+                    x=0;
                 }
             }
 
