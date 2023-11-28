@@ -6,11 +6,11 @@ import java.util.List;
 import javax.swing.*;
 
 public class Gra extends JPanel {
-    private List<Point> raindrops = new ArrayList<>();
+    private List<Drop> raindrops = new ArrayList<>();
     private List<Cloud> clouds = new ArrayList<>();
     private CardLayout cardLayout;
 
-    int x=1;
+    int x = 1;
 
     public Gra(CardLayout cardLayout) {
         this.cardLayout = cardLayout;
@@ -19,9 +19,10 @@ public class Gra extends JPanel {
         clouds.add(new Cloud(100, 50));
         clouds.add(new Cloud(300, 100));
         clouds.add(new Cloud(500, 75));
-        clouds.add(new Cloud(1000, 50));
+        clouds.add(new Cloud(800, 50));
         for (int i = 0; i < 10; ++i) {
-            this.raindrops.add(new Point((int) (Math.random() * 1024), (int) (Math.random() * 200.0)));
+            this.raindrops.add(new RainDrop((int) (Math.random() * 1024), (int) (Math.random() * 200.0), "2*7"));
+
         }
 
         JButton bmenu = new JButton("Menu");
@@ -52,10 +53,10 @@ public class Gra extends JPanel {
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                Iterator<Point> iterator = raindrops.iterator();
+                Iterator<Drop> iterator = raindrops.iterator();
                 while (iterator.hasNext()) {
-                    Point raindrop = iterator.next();
-                    Rectangle bounds = new Rectangle(raindrop.x, raindrop.y, 30, 45);
+                    Drop raindrop = iterator.next();
+                    Rectangle bounds = raindrop.getBounds();
                     if (bounds.contains(e.getPoint())) {
                         iterator.remove(); // Usunięcie kropelki po kliknięciu
                     }
@@ -65,27 +66,24 @@ public class Gra extends JPanel {
         });
 
         Timer timer = new Timer(25, (e) -> {
-          //  Iterator var2 = this.raindrops.iterator();
-            Iterator<Point> iterator = this.raindrops.iterator();
 
-            while(iterator.hasNext()) {
-               // Iterator<Point> iterator = this.raindrops.iterator();
-                Point raindrop = iterator.next();
+            Iterator<Drop> iterator = this.raindrops.iterator();
+
+            while (iterator.hasNext()) {
+                // Iterator<Point> iterator = this.raindrops.iterator();
+                Drop raindrop = iterator.next();
                 raindrop.translate(0, 2);
 
-                if (raindrop.y > getHeight() && x==1 )
-                {
+                if (raindrop.getY() > getHeight() && x == 1) {
                     iterator.remove();
                     System.out.println("Spadly");
-                    x=0;
+                    x = 0;
                 }
             }
 
             this.repaint();
         });
         timer.start();
-
-
 
 
         // Przesuwanie chmur
@@ -101,11 +99,8 @@ public class Gra extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        g.setColor(Color.CYAN);
-        Iterator<Point> iterator = this.raindrops.iterator();
-        while (iterator.hasNext()) {
-            Point raindrop = iterator.next();
-            g.fillOval(raindrop.x, raindrop.y, 30, 75);
+        for (Drop drop : raindrops) {
+            drop.draw(g);
         }
 
         // Rysowanie chmur
@@ -116,6 +111,7 @@ public class Gra extends JPanel {
             g.fillOval(cloud.getX() + 40, cloud.getY(), 80, 40);
         }
     }
+
 
     // Klasa reprezentująca chmurę
     private class Cloud {
@@ -142,5 +138,52 @@ public class Gra extends JPanel {
                 x = getWidth(); // Przenieś chmurę na prawo po opuszczeniu obszaru rysowania
             }
         }
+    }
+    // Klasa odpowiadająca za spadanie kropel
+    private class Drop {
+        private int x;
+        private int y;
+
+        public Drop(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
+
+        public int getX() {
+            return x;
+        }
+
+        public int getY() {
+            return y;
+        }
+
+        public void translate(int dx, int dy) {
+            this.x += dx;
+            this.y += dy;
+        }
+
+        public Rectangle getBounds() {
+            return new Rectangle(x, y, 30, 75);
+        }
+
+        public void draw(Graphics g) {
+            g.setColor(Color.CYAN);
+            g.fillOval(x, y, 30, 75);
+        }
+    }
+
+     private class RainDrop extends Drop{
+        private String operation;
+
+        public RainDrop(int x, int y, String operation) {
+            super(x, y);
+            this.operation = operation;
+        }
+         @Override
+         public void draw(Graphics g) {
+             super.draw(g);
+             g.setColor(Color.BLACK);
+             g.drawString(operation, getX()+ 5, getY() + 40);
+         }
     }
 }
