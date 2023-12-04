@@ -1,0 +1,63 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+public class Menu extends JFrame implements ActionListener{
+
+    JButton run, exit;
+    private JPanel cards;
+    private CardLayout cardLayout;
+    private Gra gra;
+    public Menu(CardLayout cardLayout) {
+
+        this.cardLayout = cardLayout;
+        setSize(1024, 768);
+
+        setLayout(new BorderLayout());
+        cardLayout = new CardLayout();
+        cards = new JPanel(this.cardLayout);
+
+        JPanel menuPanel = createMenuPanel();
+        cards.add(menuPanel, "Menu");
+
+        add(cards);
+
+        this.cardLayout.show(cards, "Menu");
+
+        setLocationRelativeTo(null);
+        setVisible(true);
+    }
+    private JPanel createMenuPanel ()
+    {
+        JPanel menuPanel = new JPanel();
+        menuPanel.setLayout(null);
+        run = new JButton("Rozpocznij gre");
+        run.setBounds(400, 100, 200, 200);
+        exit = new JButton("Wyjdz z gry");
+        exit.setBounds(400, 500, 200, 200);
+        menuPanel.add(exit);
+        menuPanel.add(run);
+        run.addActionListener(this);
+        exit.addActionListener(this);
+
+        return menuPanel;
+    }
+
+
+    public void actionPerformed (ActionEvent e)
+    {
+        Object source = e.getSource();
+        if (source == run) {
+            Gra gra = new Gra(cardLayout);
+            cards.add(gra, "Gra");
+            this.cardLayout.show(cards, "Gra");
+        }
+        else if (source == exit)
+        {
+            System.exit(0);
+        }
+    }
+}
+
+
