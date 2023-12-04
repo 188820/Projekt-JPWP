@@ -8,9 +8,9 @@ public class Main {
     public static void main(String[] args) {
 
         CardLayout cardLayout = new CardLayout();
-        JPanel cards = new JPanel(cardLayout);
         Menu menu = new Menu(cardLayout);
-        menu.setVisible(true)
+        menu.setVisible(true);
+
     }
 }
 
