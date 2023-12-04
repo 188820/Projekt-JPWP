@@ -10,21 +10,33 @@ public class Gra extends JPanel {
     private List<Cloud> clouds = new ArrayList<>();
     private CardLayout cardLayout;
 
+    private Image backgroundImage;
+
     int x = 1;
 
     public Gra(CardLayout cardLayout) {
         this.cardLayout = cardLayout;
-        //setLayout(new BorderLayout());
+        backgroundImage = new ImageIcon("Background3.png").getImage();
         // Dodanie kilku chmur
         clouds.add(new Cloud(100, 50));
         clouds.add(new Cloud(300, 100));
         clouds.add(new Cloud(500, 75));
         clouds.add(new Cloud(800, 50));
         for (int i = 0; i < 10; ++i) {
-            this.raindrops.add(new RainDrop((int) (Math.random() * 1024), (int) (Math.random() * 200.0), "2*7"));
+            int newDropX = (int) (Math.random() * 1024);
+            int newDropY = (int) (Math.random() * 200.0);
+            RainDrop newRaindrop = new RainDrop(newDropX, newDropY, "2*7");
 
+            // Sprawdzenie, czy nowa kropla nachodzi na już istniejące
+            boolean overlaps = raindrops.stream()
+                    .anyMatch(existingDrop -> existingDrop.getBounds().intersects(newRaindrop.getBounds()));
+
+            // Jeśli nie nachodzi, dodaj nową kroplę
+            if (!overlaps) {
+                this.raindrops.add(newRaindrop);
+            }
         }
-
+        // Obsługa powrotu do menu
         JButton bmenu = new JButton("Menu");
         bmenu.setPreferredSize(new Dimension(100, 50));
         bmenu.addActionListener(new ActionListener() {
@@ -68,11 +80,13 @@ public class Gra extends JPanel {
         Timer timer = new Timer(25, (e) -> {
 
             Iterator<Drop> iterator = this.raindrops.iterator();
-
+            for (Cloud cloud : clouds) {
+                cloud.move();
+            }
             while (iterator.hasNext()) {
-                // Iterator<Point> iterator = this.raindrops.iterator();
+
                 Drop raindrop = iterator.next();
-                raindrop.translate(0, 2);
+                raindrop.translate(0, 1);
 
                 if (raindrop.getY() > getHeight() && x == 1) {
                     iterator.remove();
@@ -81,30 +95,24 @@ public class Gra extends JPanel {
                 }
             }
 
+
             this.repaint();
         });
         timer.start();
 
 
-        // Przesuwanie chmur
-        for (Cloud cloud : clouds) {
-            cloud.move();
-        }
 
-        this.repaint();
-
-        timer.start();
     }
 
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-
+        g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
         for (Drop drop : raindrops) {
             drop.draw(g);
         }
 
         // Rysowanie chmur
-        g.setColor(Color.BLUE);
+        g.setColor(Color.WHITE);
         for (Cloud cloud : clouds) {
             g.fillOval(cloud.getX(), cloud.getY(), 80, 40);
             g.fillOval(cloud.getX() + 20, cloud.getY() - 20, 80, 40);
