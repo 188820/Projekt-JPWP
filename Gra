@@ -10,34 +10,74 @@ public class Gra extends JPanel {
     private List<Cloud> clouds = new ArrayList<>();
     private CardLayout cardLayout;
 
+    private int correctDropsClicked = 0;
+    private int totalCorrectDrops;
     private Image backgroundImage;
 
-    int x = 1;
+    private long startTime;
 
-    public Gra(CardLayout cardLayout) {
+    int x = 1;
+    final int MIN_DISTANCE = 80;
+
+    private int level;
+
+    public Gra(CardLayout cardLayout, int level) {
         this.cardLayout = cardLayout;
+        this.level = level;
+
+        setLayout(new BorderLayout());
         backgroundImage = new ImageIcon("Background3.png").getImage();
+
+        startTime = System.currentTimeMillis();
+
         // Dodanie kilku chmur
         clouds.add(new Cloud(100, 50));
         clouds.add(new Cloud(300, 100));
         clouds.add(new Cloud(500, 75));
         clouds.add(new Cloud(800, 50));
-        for (int i = 0; i < 10; ++i) {
-            int newDropX = (int) (Math.random() * 1024);
-            int newDropY = (int) (Math.random() * 200.0);
-            RainDrop newRaindrop = new RainDrop(newDropX, newDropY, "2*7");
 
-            // Sprawdzenie, czy nowa kropla nachodzi na już istniejące
-            boolean overlaps = raindrops.stream()
-                    .anyMatch(existingDrop -> existingDrop.getBounds().intersects(newRaindrop.getBounds()));
 
-            // Jeśli nie nachodzi, dodaj nową kroplę
-            if (!overlaps) {
-                this.raindrops.add(newRaindrop);
+        int[][] iloczyny = {
+                {2, 7},
+                {3, 8},
+                {9, 7},
+                {7, 6},
+                {5, 9},
+                {6, 4},
+                {2, 12},
+                {8, 4},
+                {4, 6},
+                {1, 9}
+        };
+
+        int Result = level == 1 ? 24 : 32;
+        totalCorrectDrops = countTotalCorrectDrops(iloczyny, Result);
+
+        for (int[] liczba : iloczyny) {
+            boolean placed = false;
+            while (!placed) {
+                int newDropX = (int) (Math.random() * 990);
+                int newDropY = (int) (Math.random() * 200.0);
+                RainDrop newRaindrop = new RainDrop(newDropX, newDropY, liczba[0], liczba[1]);
+
+                // Sprawdzenie, czy nowa kropla nachodzi na już istniejące
+                boolean overlaps = raindrops.stream().anyMatch(existingDrop -> {
+                int distanceX = Math.abs(existingDrop.getX() - newRaindrop.getX());
+                int distanceY = Math.abs(existingDrop.getY() - newRaindrop.getY());
+                // Sprawdzenie, czy odległość między kroplami jest mniejsza niż minimalna dozwolona
+                return distanceX < MIN_DISTANCE && distanceY < MIN_DISTANCE;
+            });
+                // Jeśli nie nachodzi, dodaj nową kroplę
+                if (!overlaps) {
+                    this.raindrops.add(newRaindrop);
+                    placed = true;
+                }
             }
         }
         // Obsługa powrotu do menu
         JButton bmenu = new JButton("Menu");
+        JPanel menuPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        menuPanel.setOpaque(false);
         bmenu.setPreferredSize(new Dimension(100, 50));
         bmenu.addActionListener(new ActionListener() {
             @Override
@@ -58,7 +98,9 @@ public class Gra extends JPanel {
                 return parent;
             }
         });
-        add(bmenu);
+        menuPanel.add(bmenu);
+        add(menuPanel, BorderLayout.NORTH);
+
 
         // Dodanie obsługi zdarzeń myszy
 
@@ -69,8 +111,19 @@ public class Gra extends JPanel {
                 while (iterator.hasNext()) {
                     Drop raindrop = iterator.next();
                     Rectangle bounds = raindrop.getBounds();
-                    if (bounds.contains(e.getPoint())) {
-                        iterator.remove(); // Usunięcie kropelki po kliknięciu
+                    RainDrop rainDrop = (RainDrop) raindrop;
+                    if (bounds.contains(e.getPoint()) ) {
+                        if (rainDrop.getResult() == Result) {
+                            iterator.remove(); // Usunięcie kropelki po kliknięciu
+                            correctDropsClicked++;
+                            if (correctDropsClicked == totalCorrectDrops) {
+                                JOptionPane.showMessageDialog(Gra.this, "BRAWO", "Gratulacje", JOptionPane.INFORMATION_MESSAGE);
+                            }
+                        }
+                        else
+                        {
+                            rainDrop.setIncorrect(true);
+                        }
                     }
                 }
                 repaint();
@@ -101,15 +154,22 @@ public class Gra extends JPanel {
         timer.start();
 
 
-
+    }
+    // Metoda, która zlicza liczbe kropel dających poprawny wynik
+    int countTotalCorrectDrops(int[][] pairs, int Result) {
+        int count = 0;
+        for (int[] pair : pairs) {
+            if (pair[0] * pair[1] == Result) {
+                count++;
+            }
+        }
+        return count;
     }
 
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
-        for (Drop drop : raindrops) {
-            drop.draw(g);
-        }
+
 
         // Rysowanie chmur
         g.setColor(Color.WHITE);
@@ -118,6 +178,31 @@ public class Gra extends JPanel {
             g.fillOval(cloud.getX() + 20, cloud.getY() - 20, 80, 40);
             g.fillOval(cloud.getX() + 40, cloud.getY(), 80, 40);
         }
+        for (Drop drop : raindrops) {
+            drop.draw(g);
+        }
+        g.setColor(Color.BLACK);
+        g.setFont(new Font("SansSerif", Font.BOLD, 24));
+        if (level==1) {
+            g.drawString("Iloczyn równy 24", 400, 30);
+        }
+        else if (level ==2)
+        {
+            g.drawString("Iloczyn równy 32", 400, 30);
+        }
+        // Rysowanie czasu
+        long Millis = System.currentTimeMillis() - startTime;
+        // Konwersja czasu z milisekund na sekundy
+        int Seconds = (int) (Millis / 1000);
+        String timeString = String.format("Czas: %02d:%02d",Seconds / 60, Seconds % 60);
+
+        // Rysowanie tła tekstu
+        g.setColor(Color.WHITE);
+        g.fillRect(0, getHeight() - 30, 150, 35);
+
+        g.setColor(Color.BLACK);
+        g.setFont(new Font("SansSerif", Font.BOLD, 24));
+        g.drawString(timeString, 10, getHeight() - 10); // Rysowanie w dolnym lewym rogu
     }
 
 
@@ -147,14 +232,20 @@ public class Gra extends JPanel {
             }
         }
     }
+
     // Klasa odpowiadająca za spadanie kropel
     private class Drop {
         private int x;
         private int y;
-
+        private boolean Incorrect = false;
         public Drop(int x, int y) {
             this.x = x;
             this.y = y;
+        }
+
+        public void setIncorrect (boolean Incorrect)
+        {
+            this.Incorrect=Incorrect;
         }
 
         public int getX() {
@@ -175,23 +266,42 @@ public class Gra extends JPanel {
         }
 
         public void draw(Graphics g) {
-            g.setColor(Color.CYAN);
-            g.fillOval(x, y, 30, 75);
+            if (Incorrect) {
+                g.setColor(Color.RED);
+                g.fillOval(x, y, 30, 75);
+            }
+            else {
+                g.setColor(Color.CYAN);
+                g.fillOval(x, y, 30, 75);
+            }
+
+
         }
     }
 
-     private class RainDrop extends Drop{
+    private class RainDrop extends Drop {
         private String operation;
+        private int result;
 
-        public RainDrop(int x, int y, String operation) {
+
+        public RainDrop(int x, int y, int liczba1, int liczba2) {
             super(x, y);
-            this.operation = operation;
+            this.operation = liczba1 + "*" + liczba2;
+            this.result = liczba1 * liczba2;
         }
+
+
+        public int getResult() {
+            return result;
+        }
+
          @Override
          public void draw(Graphics g) {
              super.draw(g);
+
              g.setColor(Color.BLACK);
              g.drawString(operation, getX()+ 5, getY() + 40);
+
          }
     }
 }
