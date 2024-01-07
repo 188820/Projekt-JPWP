@@ -6,20 +6,20 @@ import javax.swing.*;
 import javax.swing.Timer;
 
 public class Gra extends JPanel {
-    private List<Drop> raindrops = new ArrayList<>();
-    private List<Cloud> clouds = new ArrayList<>();
-    private int totalCorrectDrops;
-    private Image backgroundImage;
-    private long startTime;
+    public List<Drop> raindrops = new ArrayList<>();
+    public List<Cloud> clouds = new ArrayList<>();
+    public int totalCorrectDrops;
+    public Image backgroundImage;
+    public long startTime;
     final int MIN_DISTANCE = 100;
-    private int level;
-    private boolean gameEnded = false;
-    private Timer timer;
-    private List<int[]> incorrectProducts = new ArrayList<>();
-    private Menu menu;
-    private int droppedDrops = 0;
-    private int correctClicks = 0;
-    private int incorrectClicks = 0;
+    public int level;
+    public boolean gameEnded = false;
+    public Timer timer;
+    public List<int[]> incorrectProducts = new ArrayList<>();
+    public Menu menu;
+    public int droppedDrops = 0;
+    public int correctClicks = 0;
+    public int incorrectClicks = 0;
     int[][] products = {
             {3, 4},
             {3, 8},
@@ -43,7 +43,9 @@ public class Gra extends JPanel {
 
         startTime = System.currentTimeMillis();
 
-        // Dodanie kilku chmur
+        /** Dodanie kilku chmur
+
+         */
         clouds.add(new Cloud(100, 50));
         clouds.add(new Cloud(300, 100));
         clouds.add(new Cloud(500, 75));
@@ -73,8 +75,9 @@ public class Gra extends JPanel {
         totalCorrectDrops = countTotalCorrectDrops(products, Result);
 
 
-
-        // Dodawanie kropli
+        /** Dodawanie kropli
+         *
+         */
         for (int[] number : products) {
             boolean placed = false;
             while (!placed) {
@@ -98,7 +101,9 @@ public class Gra extends JPanel {
             }
         }
 
-        // Obsługa powrotu do menu
+        /** Obsługa powrotu do menu
+         *
+         */
         JButton bmenu = new JButton("Menu");
         JPanel menuPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         menuPanel.setOpaque(false);
@@ -127,9 +132,9 @@ public class Gra extends JPanel {
         add(menuPanel, BorderLayout.NORTH);
 
 
-
-
-        // Dodanie obsługi zdarzeń myszy
+        /** Dodanie obsługi zdarzeń myszy
+         *
+         */
 
         addMouseListener(new MouseAdapter() {
             @Override
@@ -178,7 +183,7 @@ public class Gra extends JPanel {
             }
         });
 
-        this.timer = new Timer(20, (e) -> {
+        this.timer = new Timer(17, (e) -> {
             if (!gameEnded) {
                 Iterator<Drop> iterator = this.raindrops.iterator();
                 for (Cloud cloud : clouds) {
@@ -208,8 +213,11 @@ public class Gra extends JPanel {
 
 
     }
-    // Metoda pytająca gracza o poprawne wyniki działań
-    private void askForIncorrectProducts() {
+
+    /** Metoda pytająca gracza o poprawne wyniki działań
+     *
+     */
+    public void askForIncorrectProducts() {
         for (int[] productPair : incorrectProducts) {
             boolean correctAnswer = false;
             do {
@@ -233,11 +241,13 @@ public class Gra extends JPanel {
             } while (!correctAnswer);
         }
         // Po przejściu przez wszystkie iloczyny
+
         JOptionPane.showMessageDialog(this, "Teraz musisz powtórzyć poziom.", "Powtórz poziom", JOptionPane.INFORMATION_MESSAGE);
         restartLevel();
     }
 
-    private void goToNextLevel()
+    /** Metoda odpowiedzialna za przejście do następnego poziomu */
+    public void goToNextLevel()
     {
         if (level==4)
         {
@@ -249,8 +259,8 @@ public class Gra extends JPanel {
 
         menu.startGame(level + 1);
     }
-
-    private void restartLevel()
+    /** Metoda odpowiedzialna za restart poziomu*/
+    public void restartLevel()
     {
         droppedDrops = 0;
         if (this.timer != null)
@@ -259,6 +269,7 @@ public class Gra extends JPanel {
         }
         menu.startGame(this.level);
     }
+    /** Metoda odpowiedzialna za zatrzymanie gry*/
     public void stopGame() {
         if (this.timer != null) {
             this.timer.stop();
@@ -266,8 +277,13 @@ public class Gra extends JPanel {
         gameEnded = true;
     }
 
-    // Metoda, która zlicza liczbe kropel dających poprawny wynik
-    int countTotalCorrectDrops(int[][] pairs, int Result) {
+    /** Metoda, która zlicza liczbe kropel dających poprawny wynik
+     *
+     * @param pairs
+     * @param Result
+     * @return
+     */
+    public int countTotalCorrectDrops(int[][] pairs, int Result) {
         int count = 0;
         for (int[] pair : pairs) {
             if (pair[0] * pair[1] == Result) {
@@ -277,6 +293,10 @@ public class Gra extends JPanel {
         return count;
     }
 
+    /** Metoda odpowiedzialna za rysowanie elementów
+     *
+     * @param g the <code>Graphics</code> object to protect
+     */
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
@@ -327,7 +347,9 @@ public class Gra extends JPanel {
     }
 
 
-    // Klasa reprezentująca chmurę
+    /** Klasa reprezentująca chmurę
+     *
+     */
     private class Cloud {
         private int x;
         private int y;
@@ -346,19 +368,25 @@ public class Gra extends JPanel {
         }
 
         public void move() {
-            // Przesunięcie chmury w lewo
+            /** Przesunięcie chmury w lewo
+             *
+             */
             x -= 1;
             if (x + 120 < 0) {
-                x = getWidth(); // Przenoszenie chmury na prawo po opuszczeniu obszaru rysowania
+                x = getWidth();
+                /** Przenoszenie chmury na prawo po opuszczeniu obszaru rysowania
+                 */
             }
         }
     }
 
-    // Klasa odpowiadająca za spadanie kropel
-    private class Drop {
-        private int x;
-        private int y;
-        private boolean Incorrect = false;
+    /** Klasa odpowiadająca za spadanie kropel
+     *
+     */
+    public class Drop {
+         int x;
+         int y;
+         boolean Incorrect = false;
         public Drop(int x, int y) {
             this.x = x;
             this.y = y;
@@ -400,9 +428,12 @@ public class Gra extends JPanel {
         }
     }
 
-    private class RainDrop extends Drop {
-        private String operation;
-        private int result, Number1, Number2;
+    /** Klasa zwracająca liczby na kroplach
+     *
+     */
+    public class RainDrop extends Drop {
+        public String operation;
+        public int result, Number1, Number2;
 
 
         public RainDrop(int x, int y, int Number1, int Number2) {
