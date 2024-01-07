@@ -44,7 +44,12 @@ public class Menu extends JFrame implements ActionListener{
         setVisible(true);
 
     }
-    private JPanel createMenuPanel ()
+
+    /** Tworzenie panelu
+     *
+     * @return
+     */
+    public JPanel createMenuPanel ()
     {
         JPanel menuPanel = new JPanel() {
         @Override
@@ -108,10 +113,10 @@ public class Menu extends JFrame implements ActionListener{
         timePanel2 = new JPanel();
         timePanel3 = new JPanel();
         timePanel4= new JPanel();
-        timePanel1.setBounds(220, 220, 165, 15);
-        timePanel2.setBounds(620, 220, 165, 15);
-        timePanel3.setBounds(220, 420, 165, 15);
-        timePanel4.setBounds(620, 420, 165, 15);
+        timePanel1.setBounds(220, 220, 175, 15);
+        timePanel2.setBounds(620, 220, 175, 15);
+        timePanel3.setBounds(220, 420, 175, 15);
+        timePanel4.setBounds(620, 420, 175, 15);
         timePanel1.setOpaque(false);
         timePanel2.setOpaque(false);
         timePanel3.setOpaque(false);
@@ -132,7 +137,8 @@ public class Menu extends JFrame implements ActionListener{
         return menuPanel;
     }
 
-
+    /** Metoda wyświetlająca najlepsze czasy w menu
+     */
     public void showLevelCompletionTime(long time, int level)
     {
         double timeInSeconds = time / 1000.0;
@@ -175,8 +181,9 @@ public class Menu extends JFrame implements ActionListener{
     }
 
 
-
-
+    /** Wybieranie poziomów
+     * @param e the event to be processed
+     */
     public void actionPerformed (ActionEvent e)
     {
         Object source = e.getSource();
@@ -200,6 +207,10 @@ public class Menu extends JFrame implements ActionListener{
             System.exit(0);
         }
     }
+
+    /** Start gry
+     * @param level
+     */
     public void startGame(int level)
     {
 
