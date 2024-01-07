@@ -11,7 +11,6 @@ public class Gra extends JPanel {
     private int totalCorrectDrops;
     private Image backgroundImage;
     private long startTime;
-    int x = 1;
     final int MIN_DISTANCE = 100;
     private int level;
     private boolean gameEnded = false;
@@ -21,7 +20,7 @@ public class Gra extends JPanel {
     private int droppedDrops = 0;
     private int correctClicks = 0;
     private int incorrectClicks = 0;
-    int[][] iloczyny = {
+    int[][] products = {
             {3, 4},
             {3, 8},
             {9, 7},
@@ -71,25 +70,25 @@ public class Gra extends JPanel {
                 break;
         }
 
-        totalCorrectDrops = countTotalCorrectDrops(iloczyny, Result);
+        totalCorrectDrops = countTotalCorrectDrops(products, Result);
 
 
 
         // Dodawanie kropli
-        for (int[] liczba : iloczyny) {
+        for (int[] number : products) {
             boolean placed = false;
             while (!placed) {
                 int newDropX = (int) (Math.random() * 960);
                 int newDropY = (int) (Math.random() * 200.0 - 100);
-                RainDrop newRaindrop = new RainDrop(newDropX, newDropY, liczba[0], liczba[1]);
+                RainDrop newRaindrop = new RainDrop(newDropX, newDropY, number[0], number[1]);
 
                 // Sprawdzenie, czy nowa kropla nachodzi na już istniejące
                 boolean overlaps = raindrops.stream().anyMatch(existingDrop -> {
-                int distanceX = Math.abs(existingDrop.getX() - newRaindrop.getX());
-                int distanceY = Math.abs(existingDrop.getY() - newRaindrop.getY());
-                // Sprawdzenie, czy odległość między kroplami jest mniejsza niż minimalna dozwolona
-                return distanceX < MIN_DISTANCE && distanceY < MIN_DISTANCE;
-            });
+                    int distanceX = Math.abs(existingDrop.getX() - newRaindrop.getX());
+                    int distanceY = Math.abs(existingDrop.getY() - newRaindrop.getY());
+                    // Sprawdzenie, czy odległość między kroplami jest mniejsza niż minimalna dozwolona
+                    return distanceX < MIN_DISTANCE && distanceY < MIN_DISTANCE;
+                });
                 // Jeśli nie nachodzi, dodaj nową kroplę
                 if (!overlaps) {
 
@@ -152,7 +151,7 @@ public class Gra extends JPanel {
                                 {
                                     stopGame();
                                     JOptionPane.showMessageDialog(Gra.this, "Dobre kliknięcia: " + correctClicks
-                                            + "\nZłe kliknięcia: " + incorrectClicks,
+                                                    + "\nZłe kliknięcia: " + incorrectClicks,
                                             "\nPrzechodzisz do następnego poziomu", JOptionPane.INFORMATION_MESSAGE);
                                     menu.showLevelCompletionTime(timeTaken, level); // Wyświetl czas w menu
                                     goToNextLevel();
@@ -179,7 +178,7 @@ public class Gra extends JPanel {
             }
         });
 
-        this.timer = new Timer(25, (e) -> {
+        this.timer = new Timer(20, (e) -> {
             if (!gameEnded) {
                 Iterator<Drop> iterator = this.raindrops.iterator();
                 for (Cloud cloud : clouds) {
@@ -190,14 +189,14 @@ public class Gra extends JPanel {
                     Drop raindrop = iterator.next();
                     raindrop.translate(0, 1);
 
-                    if (raindrop.getY() > getHeight()+200) {
-                        droppedDrops++; // Zwiększ liczbę spadłych kropel
+                    if (raindrop.getY() > getHeight()+100) {
+                        droppedDrops++;
                         if (droppedDrops == raindrops.size())
                         {
                             JOptionPane.showMessageDialog(Gra.this, "Wszystkie krople spadły." + "\nDobre kliknięcia: " + correctClicks
                                     + "\nZłe kliknięcia: " + incorrectClicks, "Podsumowanie", JOptionPane.INFORMATION_MESSAGE);
                             askForIncorrectProducts();
-                            restartLevel();
+
                         }
                     }
                 }
@@ -252,14 +251,14 @@ public class Gra extends JPanel {
     }
 
     private void restartLevel()
+    {
+        droppedDrops = 0;
+        if (this.timer != null)
         {
-            droppedDrops = 0;
-            if (this.timer != null)
-                {
-                this.timer.stop();
-                }
-        menu.startGame(this.level);
+            this.timer.stop();
         }
+        menu.startGame(this.level);
+    }
     public void stopGame() {
         if (this.timer != null) {
             this.timer.stop();
@@ -294,6 +293,7 @@ public class Gra extends JPanel {
             drop.draw(g);
         }
         g.setColor(Color.BLACK);
+        // Rysowanie poleceń
         g.setFont(new Font("SansSerif", Font.BOLD, 24));
         if (level==1)
         {
@@ -323,7 +323,7 @@ public class Gra extends JPanel {
 
         g.setColor(Color.BLACK);
         g.setFont(new Font("SansSerif", Font.BOLD, 24));
-        g.drawString(timeString, 10, getHeight() - 10); // Rysowanie w dolnym lewym rogu
+        g.drawString(timeString, 10, getHeight() - 10);
     }
 
 
@@ -349,7 +349,7 @@ public class Gra extends JPanel {
             // Przesunięcie chmury w lewo
             x -= 1;
             if (x + 120 < 0) {
-                x = getWidth(); // Przenieś chmurę na prawo po opuszczeniu obszaru rysowania
+                x = getWidth(); // Przenoszenie chmury na prawo po opuszczeniu obszaru rysowania
             }
         }
     }
@@ -428,14 +428,14 @@ public class Gra extends JPanel {
         }
 
 
-         @Override
-         public void draw(Graphics g) {
-             super.draw(g);
+        @Override
+        public void draw(Graphics g) {
+            super.draw(g);
 
-             g.setColor(Color.BLACK);
-             g.setFont(new Font("SansSerif", Font.BOLD, 16));
-             g.drawString(operation, getX()+ 7, getY() + 46);
+            g.setColor(Color.BLACK);
+            g.setFont(new Font("SansSerif", Font.BOLD, 16));
+            g.drawString(operation, getX()+ 7, getY() + 46);
 
-         }
+        }
     }
 }
